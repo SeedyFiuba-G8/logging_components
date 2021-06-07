@@ -1,6 +1,6 @@
 {
 	"name": "@mauro7x/logging_service",
-	"version": "1.0.2",
+	"version": "1.0.3",
 	"description": "Seedy FIUBA Logging Service",
 	"main": "index.js",
 	"scripts": {},
