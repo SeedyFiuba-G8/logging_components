@@ -1,20 +1,20 @@
 {
-	"name": "@mauro7x/logging_service",
-	"version": "1.0.3",
+	"name": "@seedyfiuba/logging_service",
+	"version": "1.0.0",
 	"description": "Seedy FIUBA Logging Service",
 	"main": "index.js",
 	"scripts": {},
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/SeedyFiuba-G8/sf_logging_service.git"
+		"url": "git+https://github.com/SeedyFiuba-G8/logging_components.git"
 	},
 	"keywords": [],
 	"author": "",
 	"license": "ISC",
 	"bugs": {
-		"url": "https://github.com/SeedyFiuba-G8/sf_logging_service/issues"
+		"url": "https://github.com/SeedyFiuba-G8/logging_components/issues"
 	},
-	"homepage": "https://github.com/SeedyFiuba-G8/sf_logging_service#readme",
+	"homepage": "https://github.com/SeedyFiuba-G8/logging_components#readme",
 	"dependencies": {
 		"winston": "^3.3.3"
 	}
