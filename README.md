@@ -1,1 +1,1 @@
-# Seedy FIUBA Logging Service
+# Seedy FIUBA Logging Components

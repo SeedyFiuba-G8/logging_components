@@ -1,7 +1,7 @@
 {
-	"name": "@seedyfiuba/logging_service",
+	"name": "@seedyfiuba/logging_components",
 	"version": "1.0.0",
-	"description": "Seedy FIUBA Logging Service",
+	"description": "Seedy FIUBA Logging Components",
 	"main": "index.js",
 	"scripts": {},
 	"repository": {
