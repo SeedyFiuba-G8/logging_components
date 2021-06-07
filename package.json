@@ -1,6 +1,6 @@
 {
 	"name": "@seedyfiuba/logging_components",
-	"version": "1.0.0",
+	"version": "1.0.1",
 	"description": "Seedy FIUBA Logging Components",
 	"main": "index.js",
 	"scripts": {},
