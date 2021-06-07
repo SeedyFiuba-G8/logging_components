@@ -1,11 +1,9 @@
 {
 	"name": "@mauro7x/logging_service",
-	"version": "1.0.1",
+	"version": "1.0.2",
 	"description": "Seedy FIUBA Logging Service",
 	"main": "index.js",
-	"scripts": {
-		"start": "node ."
-	},
+	"scripts": {},
 	"repository": {
 		"type": "git",
 		"url": "git+https://github.com/SeedyFiuba-G8/sf_logging_service.git"
