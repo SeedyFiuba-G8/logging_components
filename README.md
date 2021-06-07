@@ -1,2 +1,1 @@
-# template
-Template
+# Seedy FIUBA Logging Service
