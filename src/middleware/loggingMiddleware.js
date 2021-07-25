@@ -2,7 +2,7 @@ const _ = require('lodash');
 
 module.exports = function $loggingMiddleware(logger) {
 	return function loggingMiddleware(req, res, next) {
-		const { ip, method, originalUrl, path } = req;
+		const { ip, method, originalUrl, hostname } = req;
 
 		let additional = {};
 		let value;
@@ -15,7 +15,7 @@ module.exports = function $loggingMiddleware(logger) {
 			message: 'Request received',
 			ip,
 			method,
-			url: originalUrl + path,
+			url: hostname + originalUrl,
 			...additional,
 		};
 

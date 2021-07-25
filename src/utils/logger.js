@@ -36,16 +36,15 @@ module.exports = function $logger(config) {
 			type: 'console',
 			adder: addConsoleTransport,
 		},
-		// {
-		// 	type: 'syslog',
-		// 	adder: addSysLogTransport,
-		// },
+		{
+			type: 'http',
+			adder: addHttpTransport,
+		},
 	];
 
 	transports.forEach((transport) => {
-		if ((config[transport.type] || {}).enabled) {
+		if ((config[transport.type] || {}).enabled)
 			transport.adder(config, logger);
-		}
 	});
 
 	function callLogger(loggerFunc, object) {
@@ -115,21 +114,8 @@ function addConsoleTransport(config, logger) {
 	logger.add(newTransport);
 }
 
-function addSysLogTransport(config, logger) {
-	require('winston-syslog').Syslog; // eslint-disable-line
-
-	const transport = new winston.transports.Syslog(config.syslog);
-	const transportLog = transport.log;
-
-	transport.log = function log() {
-		/* eslint-disable prefer-rest-params */
-		if (arguments[0] === 'warn') {
-			arguments[0] = 'warning';
-		}
-
-		return transportLog.apply(transport, arguments);
-		/* eslint-enable prefer-rest-params */
-	};
-
-	logger.add(transport, null, true);
+function addHttpTransport(config, logger) {
+	const newTransport = new winston.transports.Http(config.http);
+	console.log(`HTTP transport:`, newTransport);
+	logger.add(newTransport);
 }
