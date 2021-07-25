@@ -1,44 +1,135 @@
+const _ = require('lodash');
 const winston = require('winston');
 
-module.exports = function loggerFactory(config) {
+module.exports = function $logger(config) {
 	const timezone = () => {
 		return new Date().toLocaleString('es-AR', {
 			timeZone: 'America/Argentina/Buenos_Aires',
 		});
 	};
 
-	const getFormatter = () =>
-		winston.format.printf(
-			(info) => `[${info.timestamp}] (${info.level}) ${info.message}`
-		);
+	const prettifyFormat = winston.format.printf((info) => {
+		const { level, ...content } = info;
+		return `${level}: ${JSON.stringify(content, null, 2)}`;
+	});
 
-	const addConsoleTransport = (logger) => {
-		logger.add(new winston.transports.Console(config.log.console));
-	};
+	const localFormat = winston.format.combine(
+		winston.format.colorize(),
+		prettifyFormat
+	);
+
+	const jsonFormat = winston.format.combine(
+		winston.format.timestamp({ format: timezone }),
+		winston.format.json()
+	);
+
+	const logFormat = config.format === 'local' ? localFormat : jsonFormat;
 
 	const logger = winston.createLogger({
-		format: winston.format.combine(
-			winston.format.timestamp({ format: timezone }),
-			winston.format.colorize({ all: true }),
-			winston.format.splat(),
-			getFormatter()
-		),
+		format: logFormat,
 	});
+
+	logger.silent = Object.keys(config).every((key) => !config[key].enabled);
 
 	const transports = [
 		{
 			type: 'console',
 			adder: addConsoleTransport,
 		},
-		// Here we can add transports to log in files (in prod, for example), and even
-		// distinguish between logging levels to diferents transports.
+		// {
+		// 	type: 'syslog',
+		// 	adder: addSysLogTransport,
+		// },
 	];
 
 	transports.forEach((transport) => {
-		if (config.log[transport.type] && config.log[transport.type].enabled) {
-			transport.adder(logger);
+		if ((config[transport.type] || {}).enabled) {
+			transport.adder(config, logger);
 		}
 	});
 
-	return logger;
+	function callLogger(loggerFunc, object) {
+		const firstKeys = ['logType', 'statusCode', 'method'];
+		const firstPart = objectToLogLine(_.pick(object, firstKeys));
+		const otherPart = objectToLogLine(_.omit(object, firstKeys));
+
+		loggerFunc.call(logger, { ...firstPart, ...otherPart });
+	}
+
+	function objectToLogLine(object) {
+		let message = {};
+		_.forIn(object, (value, key) => {
+			message = { ...message, [key]: formatValueToLog(value) };
+		});
+
+		return message;
+	}
+
+	return {
+		error: function error(args) {
+			callLogger(logger.error, makeTags(args));
+		},
+		debug: function debug(args) {
+			callLogger(logger.debug, makeTags(args));
+		},
+		info: function info(args) {
+			callLogger(logger.info, makeTags(args));
+		},
+		warn: function warn(args) {
+			callLogger(logger.warn, makeTags(args));
+		},
+	};
 };
+
+function makeTags(args) {
+	if (_.isString(args)) {
+		return { message: args };
+	}
+	if (_.isError(args)) {
+		return { error: args };
+	}
+	return args;
+}
+
+function formatValueToLog(value) {
+	if (_.isString(value)) {
+		return value;
+	}
+	if (_.isError(value)) {
+		return formatValueToLog({
+			...value,
+			name: value.name,
+			message: value.message,
+			errors: value.errors,
+			stack: value.stack,
+		});
+	}
+	return value;
+}
+
+function addConsoleTransport(config, logger) {
+	const newTransport = new winston.transports.Console({
+		stderrLevels: ['error'],
+		...config.console,
+	});
+	logger.add(newTransport);
+}
+
+function addSysLogTransport(config, logger) {
+	require('winston-syslog').Syslog; // eslint-disable-line
+
+	const transport = new winston.transports.Syslog(config.syslog);
+	const transportLog = transport.log;
+
+	transport.log = function log() {
+		/* eslint-disable prefer-rest-params */
+		if (arguments[0] === 'warn') {
+			arguments[0] = 'warning';
+		}
+
+		return transportLog.apply(transport, arguments);
+		/* eslint-enable prefer-rest-params */
+	};
+
+	logger.add(transport, null, true);
+}

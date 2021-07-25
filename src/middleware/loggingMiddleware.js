@@ -1,19 +1,25 @@
 const _ = require('lodash');
 
-module.exports = function loggingMiddlewareFactory(logger) {
+module.exports = function $loggingMiddleware(logger) {
 	return function loggingMiddleware(req, res, next) {
-		if (!_.isEmpty(req.headers)) {
-			logger.debug('Request Headers: %s', req.headers);
-		}
+		const { ip, method, originalUrl, path } = req;
 
-		if (!_.isEmpty(req.query)) {
-			logger.debug('Request Query: %s', req.query);
-		}
+		let additional = {};
+		let value;
+		['body', 'headers', 'query'].forEach((field) => {
+			value = req[field];
+			if (value && !_.isEmpty(value)) additional[field] = req[field];
+		});
 
-		if (!_.isEmpty(req.body)) {
-			logger.debug('Request Body: %s', req.body);
-		}
+		const logObject = {
+			message: 'Request received',
+			ip,
+			method,
+			url: originalUrl + path,
+			...additional,
+		};
 
+		logger.debug(logObject);
 		next();
 	};
 };
