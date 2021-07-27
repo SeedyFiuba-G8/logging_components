@@ -116,6 +116,5 @@ function addConsoleTransport(config, logger) {
 
 function addHttpTransport(config, logger) {
 	const newTransport = new winston.transports.Http(config.http);
-	console.log(`HTTP transport:`, newTransport);
 	logger.add(newTransport);
 }
